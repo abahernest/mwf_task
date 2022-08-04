@@ -1,0 +1,55 @@
+version: "3.9"  # optional since v1.27.0
+services:
+  db:
+    image: postgres:12-alpine
+    restart: always
+    networks:
+      - webnet
+    volumes:
+      - ./pg-init-scripts/create-multiple-db.sh:/docker-entrypoint-initdb.d/create-multiple-db.sh
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-mwf_task}
+      POSTGRES_MULTIPLE_DATABASES: ${DB_MULTIPLE_DATABASES:-mwf_task_test,mwf_task_dev}
+  
+  web:
+    image: abahernest/mwf_task_web:latest
+    ports:
+      - "5000:5000"
+    restart: always
+    networks:
+      - webnet
+    depends_on:
+      - db
+      - redis
+      - test
+    environment:
+      PROD_DB_NAME: ${DB_NAME:-mwf_task}
+      DB_HOST: db
+      REDIS_HOST: redis
+    command: ["npm", "start"]
+
+  test:
+    image: abahernest/mwf_task_web:latest
+    ports:
+      - "8000:5000"
+    networks:
+      - webnet
+    depends_on:
+      - db
+      - redis
+    environment:
+      NODE_ENV: test
+      TEST_DB_NAME: ${TEST_DB_NAME:-mwf_task_test}
+      DB_HOST: db
+      REDIS_HOST: redis
+    command: ["npm", "test"]
+  
+  redis:
+    image: redis
+    restart: always
+    networks:
+      - webnet
+networks:
+  webnet:
