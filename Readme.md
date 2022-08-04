@@ -24,8 +24,6 @@ cd mwf_task
 * Run tests `npm test`
 
 ### Using Docker
-* Create a .env file identical to `env.example` file
-* Populate the .env file with right credentials (NOT MANDATORY)
 * Using docker compose `docker compose up`
 * Test runs automatically
 
