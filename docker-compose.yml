@@ -1,12 +1,10 @@
 version: "3.9"  # optional since v1.27.0
 services:
   db:
-    image: postgres:12-alpine
+    image: abahernest/mwf_task_db:latest
     restart: always
     networks:
       - webnet
-    volumes:
-      - ./pg-init-scripts/create-multiple-db.sh:/docker-entrypoint-initdb.d/create-multiple-db.sh
     environment:
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
